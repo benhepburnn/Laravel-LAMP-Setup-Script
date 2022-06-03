@@ -16,6 +16,9 @@ if [[ -z "${SETUP_STARTED}" ]]; then
 
 	echo "Install git"
 	sudo yum install -y git >> /dev/null 2>&1
+	
+	echo "Disable Git File Permissions"
+	git config --global core.fileMode false
 
 	echo "Set up swap"
 	sudo dd if=/dev/zero of=/swapfile bs=128M count=16
