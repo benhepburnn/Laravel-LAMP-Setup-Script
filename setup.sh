@@ -2,10 +2,10 @@
 
 if [[ -z "${SETUP_STARTED}" ]]; then
 	echo "Update packages"
-	sudo yum update -y >> /dev/null 2>&1
+	sudo yum update -y >> /dev/null
 
 	echo "Install Apache"
-	sudo yum install -y httpd >> /dev/null 2>&1
+	sudo yum install -y httpd >> /dev/null
 
 	echo "Start and enable Apache service"
 	sudo systemctl start httpd.service
@@ -15,7 +15,7 @@ if [[ -z "${SETUP_STARTED}" ]]; then
 	sudo usermod -a -G apache ec2-user
 
 	echo "Install git"
-	sudo yum install -y git >> /dev/null 2>&1
+	sudo yum install -y git >> /dev/null
 	
 	echo "Disable Git File Permissions"
 	git config --global core.fileMode false
@@ -42,7 +42,7 @@ echo # new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "Install MariaDB"
-	sudo amazon-linux-extras install -y mariadb10.5 >> /dev/null 2>&1
+	sudo amazon-linux-extras install -y mariadb10.5 >> /dev/null
 
 	echo "Start and enable service"
 	sudo systemctl start mariadb
@@ -63,10 +63,10 @@ sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
 find /var/www -type f -exec sudo chmod 0664 {} \;
 
 echo "Install PHP"
-sudo amazon-linux-extras install -y php8.0 >> /dev/null 2>&1
+sudo amazon-linux-extras install -y php8.0 >> /dev/null
 
 echo "Install modules"
-sudo yum install -y php-bcmath php-mbstring php-xml php-gd >> /dev/null 2>&1
+sudo yum install -y php-bcmath php-mbstring php-xml php-gd >> /dev/null
 
 echo "Git:"
 echo "Create SSH key"
@@ -127,7 +127,7 @@ EOF
 echo "Apache config updated"
 
 echo "Adding Laravel schedule to cron"
-echo "* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" | sudo tee -a /etc/crontab
+echo "* * * * * ec2-user cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1" | sudo tee -a /etc/crontab
 
 echo "Restart Apache and PHP"
 sudo systemctl restart httpd.service
@@ -161,6 +161,10 @@ sudo chgrp -R apache storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 echo "Permissions set"
 
+read -p "Install Supervisor? (y/n): " -n 1 -r
+echo # new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
 echo "Install supervisor"
 sudo yum install -y supervisor
 
@@ -191,6 +195,7 @@ sudo supervisorctl update
 sudo supervisorctl start all
 
 echo "Supervisor installed"
+fi
 
 echo "Laravel LAMP Setup Finished!"
 
