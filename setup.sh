@@ -45,6 +45,21 @@ then
 	sudo systemctl start mariadb
 	sudo systemctl enable mariadb.service
 
+	cat << EOF | sudo tee -a ~/restart_mariadb.sh
+#!/bin/bash
+
+# Check if MariaDB is running
+sudo systemctl status mariadb > /dev/null 2>&1
+
+# Restart the MariaDB service if it's not running.
+if [ $? != 0 ]; then
+    sudo systemctl restart mariadb
+fi
+EOF
+
+	echo "Adding MariaDB watchdog to cron"
+	echo "* * * * * /home/user/scripts/restart_mariadb.sh > /dev/null 2>&1" | sudo tee -a /etc/crontab
+
 	echo "Secure DB"
 	sudo mysql_secure_installation
 fi
