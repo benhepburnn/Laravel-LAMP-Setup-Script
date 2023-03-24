@@ -2,10 +2,10 @@
 
 if [[ -z "${SETUP_STARTED}" ]]; then
 	echo "Update packages"
-	sudo yum update -y >> /dev/null
+	sudo dnf update -y >> /dev/null
 
 	echo "Install Apache"
-	sudo yum install -y httpd >> /dev/null
+	sudo dnf install -y httpd >> /dev/null
 
 	echo "Start and enable Apache service"
 	sudo systemctl start httpd.service
@@ -15,7 +15,7 @@ if [[ -z "${SETUP_STARTED}" ]]; then
 	sudo usermod -a -G apache ec2-user
 
 	echo "Install git"
-	sudo yum install -y git >> /dev/null
+	sudo dnf install -y git >> /dev/null
 	
 	echo "Disable Git File Permissions"
 	git config --global core.fileMode false
@@ -42,7 +42,7 @@ echo # new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	echo "Install MariaDB"
-	sudo amazon-linux-extras install -y mariadb10.5 >> /dev/null
+	sudo dnf install -y mariadb105-server >> /dev/null
 
 	echo "Start and enable service"
 	sudo systemctl start mariadb
@@ -55,7 +55,7 @@ then
 sudo systemctl status mariadb > /dev/null 2>&1
 
 # Restart the MariaDB service if it's not running.
-if [ $? != 0 ]; then
+if [ ${?@Q} != 0 ]; then
     sudo systemctl restart mariadb
 fi
 EOF
@@ -78,10 +78,10 @@ sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
 find /var/www -type f -exec sudo chmod 0664 {} \;
 
 echo "Install PHP"
-sudo amazon-linux-extras install -y php8.0 >> /dev/null
+sudo dnf install -y php >> /dev/null
 
 echo "Install modules"
-sudo yum install -y php-bcmath php-mbstring php-xml php-gd >> /dev/null
+sudo dnf install -y php-bcmath php-mbstring php-xml php-gd >> /dev/null
 
 echo "Git:"
 echo "Create SSH key"
@@ -152,14 +152,14 @@ echo "Create database now"
 mysql -u root -p
 
 echo "Installing Certbot"
-sudo wget -r --no-parent -A 'epel-release-*.rpm' https://dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/
-sudo rpm -Uvh dl.fedoraproject.org/pub/epel/7/x86_64/Packages/e/epel-release-*.rpm
-sudo yum-config-manager --enable epel*
-sudo amazon-linux-extras install epel -y
-sudo yum install -y certbot python2-certbot-apache
-
-sudo rm -r dl.fedoraproject.org
-sudo certbot
+sudo dnf install -y python3 augeas-libs pip >> /dev/null
+sudo python3 -m venv /opt/certbot/
+sudo /opt/certbot/bin/pip install --upgrade pip
+sudo /opt/certbot/bin/pip install certbot
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+sudo systemctl stop httpd
+sudo certbot certonly --standalone
+sudo systemctl start httpd
 
 echo "Adding certbot renew to cron"
 echo "39      1,13    *       *       *       root    certbot renew --no-self-upgrade" | sudo tee -a /etc/crontab
@@ -181,7 +181,7 @@ echo # new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 echo "Install supervisor"
-sudo yum install -y supervisor
+sudo dnf install -y supervisor
 
 sudo systemctl start supervisord
 
