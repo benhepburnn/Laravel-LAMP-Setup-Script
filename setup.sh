@@ -127,7 +127,11 @@ echo # new line
 
  [[ $WWW =~ ^[Yy]$ ]] && ALIAS="ServerAlias www.$DOMAIN" || ALIAS=""
 
-cat << EOF | sudo tee -a /etc/httpd/conf/httpd.conf
+echo 'Include /etc/httpd/sites-enabled/*.conf' | sudo tee -a /etc/httpd/conf/httpd.conf
+sudo mkdir -p /etc/httpd/sites-{enabled,available}
+sudo touch /etc/httpd/sites-available/site.conf
+
+cat << EOF | sudo tee -a /etc/httpd/sites-available/site.conf
 <VirtualHost *:80>
     DocumentRoot "/var/www/html/public"
     ServerName $DOMAIN
@@ -139,6 +143,9 @@ cat << EOF | sudo tee -a /etc/httpd/conf/httpd.conf
     </Directory>
 </VirtualHost>
 EOF
+
+sudo ln -s /etc/httpd/sites-available/site.conf /etc/httpd/sites-enabled/
+
 echo "Apache config updated"
 
 echo "Adding Laravel schedule to cron"
