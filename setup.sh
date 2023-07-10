@@ -78,7 +78,7 @@ sudo chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
 find /var/www -type f -exec sudo chmod 0664 {} \;
 
 echo "Install PHP"
-sudo amazon-linux-extras install -y php8.0 >> /dev/null
+sudo amazon-linux-extras install -y php8.2 >> /dev/null
 
 echo "Install modules"
 sudo yum install -y php-bcmath php-mbstring php-xml php-gd >> /dev/null
@@ -99,6 +99,9 @@ echo # New line
 echo "Cloning..."
 cd /var/www/html
 $REPLY .
+
+git config core.filemode false
+chmod 700 deploy_laravel.sh
 
 echo "Install composer"
 cd ~
