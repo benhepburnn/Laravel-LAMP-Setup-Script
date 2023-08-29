@@ -222,6 +222,9 @@ sudo supervisorctl start all
 echo "Supervisor installed"
 fi
 
+# Add deploy alias to .bashrc
+echo 'alias deploy="cd /var/www/html && ./deploy_laravel.sh"' >> ~/.bashrc
+
 echo "Laravel LAMP Setup Finished!"
 
 echo "Now edit .env and run ./deploy_laravel.sh"
