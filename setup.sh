@@ -155,10 +155,10 @@ echo "Installing Certbot"
 sudo dnf install -y python3 augeas-libs pip >> /dev/null
 sudo python3 -m venv /opt/certbot/
 sudo /opt/certbot/bin/pip install --upgrade pip
-sudo /opt/certbot/bin/pip install certbot
+sudo /opt/certbot/bin/pip install certbot-apache
 sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 sudo systemctl stop httpd
-sudo certbot certonly --standalone
+sudo certbot certonly
 sudo systemctl start httpd
 
 echo "Adding certbot renew to cron"
