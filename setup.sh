@@ -26,6 +26,8 @@ VHOST_FILE="${VHOST_FILE:-/etc/httpd/conf.d/laravel.conf}"
 COMPOSER_PATH="${COMPOSER_PATH:-/usr/local/bin/composer}"
 CERTBOT_BIN="${CERTBOT_BIN:-/usr/local/bin/certbot}"
 CERTBOT_EMAIL="${CERTBOT_EMAIL:-}"
+CERTBOT_PYTHON="${CERTBOT_PYTHON:-python3}"
+CERTBOT_PYTHON_PACKAGES="${CERTBOT_PYTHON_PACKAGES:-python3 python3-devel}"
 DOMAIN="${DOMAIN:-}"
 INCLUDE_WWW="${INCLUDE_WWW:-prompt}"
 REPO_URL="${REPO_URL:-}"
@@ -511,9 +513,23 @@ install_certbot() {
 	resolve_include_www
 	prompt_value CERTBOT_EMAIL "Email for Let's Encrypt notices (optional)" "$CERTBOT_EMAIL"
 
-	install_packages python3 python3-devel augeas-devel gcc || return
+	# shellcheck disable=SC2206
+	local python_packages=($CERTBOT_PYTHON_PACKAGES)
+	install_packages mod_ssl augeas-devel gcc "${python_packages[@]}" || return
+	sudo systemctl restart httpd || return
+
+	if ! sudo apachectl -M 2>/dev/null | grep -q 'ssl_module'; then
+		warn "Apache ssl_module is not loaded. Certbot's Apache installer cannot continue."
+		return 1
+	fi
+
+	command -v "$CERTBOT_PYTHON" >/dev/null || {
+		warn "CERTBOT_PYTHON '$CERTBOT_PYTHON' was not found."
+		return 1
+	}
+
 	log "Installing Certbot in /opt/certbot"
-	sudo python3 -m venv /opt/certbot/ || return
+	sudo "$CERTBOT_PYTHON" -m venv /opt/certbot/ || return
 	sudo /opt/certbot/bin/pip install --upgrade pip >/dev/null || return
 	sudo /opt/certbot/bin/pip install certbot certbot-apache >/dev/null || return
 

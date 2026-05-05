@@ -65,6 +65,8 @@ Boolean options accept `yes/no`, `true/false`, `1/0`, or `on/off`. Some options 
 | `SECURE_MARIADB` | prompt | Run `mysql_secure_installation`. |
 | `INSTALL_CERTBOT` | prompt | Install Certbot with pip/venv and request a certificate. |
 | `CERTBOT_EMAIL` | empty | Email used for Let's Encrypt notices. |
+| `CERTBOT_PYTHON` | `python3` | Python executable used to create the Certbot virtualenv. |
+| `CERTBOT_PYTHON_PACKAGES` | `python3 python3-devel` | Packages installed before creating the Certbot virtualenv. |
 | `INSTALL_SUPERVISOR` | prompt | Install Supervisor queue worker config. |
 | `QUEUE_WORKERS` | `3` | Number of Supervisor queue worker processes. |
 | `SETUP_SCHEDULER` | prompt | Configure the Laravel scheduler. |
@@ -80,6 +82,7 @@ Boolean options accept `yes/no`, `true/false`, `1/0`, or `on/off`. Some options 
 - The script checks that it is running on Amazon Linux 2023 before making changes.
 - The script requires passwordless sudo. The official Amazon Linux 2023 EC2 `ec2-user` normally has this by default.
 - Apache configuration is written to `/etc/httpd/conf.d/laravel.conf` and validated with `apachectl configtest`.
+- Certbot installs `mod_ssl` first and verifies Apache has loaded `ssl_module` before requesting a certificate.
 - The Laravel scheduler uses a systemd timer by default because `crond` is not always installed on Amazon Linux 2023.
 - Re-running the script is supported for common operations. It avoids duplicate swap and cron entries, and rewrites systemd units safely.
 - Optional setup steps report failure in the final summary and the installer continues with the remaining steps.
