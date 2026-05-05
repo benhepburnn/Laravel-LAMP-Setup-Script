@@ -165,7 +165,7 @@ require_al2023() {
 	[[ "${ID:-}" == "amzn" && "${VERSION_ID:-}" == "2023" ]] || die "This installer is intended for Amazon Linux 2023. Detected ID=${ID:-unknown}, VERSION_ID=${VERSION_ID:-unknown}."
 	command -v dnf >/dev/null || die "dnf is required."
 	command -v sudo >/dev/null || die "sudo is required."
-	sudo -v
+	sudo -n true 2>/dev/null || die "Passwordless sudo is required. On Amazon Linux 2023, run as ec2-user from the official EC2 image or fix sudoers so ec2-user can run sudo without a password."
 }
 
 install_packages() {

@@ -77,6 +77,7 @@ Boolean options accept `yes/no`, `true/false`, `1/0`, or `on/off`. Some options 
 ## Notes
 
 - The script checks that it is running on Amazon Linux 2023 before making changes.
+- The script requires passwordless sudo. The official Amazon Linux 2023 EC2 `ec2-user` normally has this by default.
 - Apache configuration is written to `/etc/httpd/conf.d/laravel.conf` and validated with `apachectl configtest`.
 - Re-running the script is supported for common operations. It avoids duplicate swap, cron, and Certbot renewal entries.
 - Certbot requires the instance security group and DNS to allow HTTP/HTTPS validation for the configured domain.
