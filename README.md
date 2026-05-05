@@ -2,7 +2,7 @@
 
 Interactive and configurable installer for hosting a Laravel project on an AWS EC2 instance running Amazon Linux 2023.
 
-It can install and configure Apache, PHP-FPM, optional MariaDB, optional Certbot HTTPS, optional Laravel scheduler cron, optional Supervisor queue workers, Composer, swap, and Laravel file permissions.
+It can install and configure Apache, PHP-FPM, optional MariaDB, optional Certbot HTTPS, optional Laravel scheduler, optional Supervisor queue workers, Composer, swap, and Laravel file permissions.
 
 ## Usage
 
@@ -67,7 +67,8 @@ Boolean options accept `yes/no`, `true/false`, `1/0`, or `on/off`. Some options 
 | `CERTBOT_EMAIL` | empty | Email used for Let's Encrypt notices. |
 | `INSTALL_SUPERVISOR` | prompt | Install Supervisor queue worker config. |
 | `QUEUE_WORKERS` | `3` | Number of Supervisor queue worker processes. |
-| `SETUP_SCHEDULER` | prompt | Add Laravel scheduler to `/etc/crontab`. |
+| `SETUP_SCHEDULER` | prompt | Configure the Laravel scheduler. |
+| `SCHEDULER_DRIVER` | `systemd` | Use `systemd` timer or `cron` for the Laravel scheduler. |
 | `SETUP_REPOSITORY` | prompt | Clone the Laravel repo into `APP_DIR`. |
 | `SETUP_COMPOSER` | `yes` | Install Composer globally if missing. |
 | `SETUP_APACHE` | `yes` | Write `/etc/httpd/conf.d/laravel.conf`. |
@@ -79,5 +80,7 @@ Boolean options accept `yes/no`, `true/false`, `1/0`, or `on/off`. Some options 
 - The script checks that it is running on Amazon Linux 2023 before making changes.
 - The script requires passwordless sudo. The official Amazon Linux 2023 EC2 `ec2-user` normally has this by default.
 - Apache configuration is written to `/etc/httpd/conf.d/laravel.conf` and validated with `apachectl configtest`.
-- Re-running the script is supported for common operations. It avoids duplicate swap, cron, and Certbot renewal entries.
+- The Laravel scheduler uses a systemd timer by default because `crond` is not always installed on Amazon Linux 2023.
+- Re-running the script is supported for common operations. It avoids duplicate swap and cron entries, and rewrites systemd units safely.
+- Optional setup steps report failure in the final summary and the installer continues with the remaining steps.
 - Certbot requires the instance security group and DNS to allow HTTP/HTTPS validation for the configured domain.
